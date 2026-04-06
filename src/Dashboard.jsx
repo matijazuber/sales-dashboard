@@ -1,24 +1,29 @@
 import supabase from "./supabase-client"
 import { useEffect } from "react"
+import { useState } from "react"
 
 function Dashboard() {
+const [metrics,setMetrics] = useState([]);
 
 const fetchMetrics = async()=>{
   try{
-  const response = await supabase
+  const {data,error} = await supabase
   .from('sales_deals')
   .select(
     `
     name,
-    value
+    total:value.sum()
     `,
   )
-  .order('value', { ascending: false })
-  .limit(1)
+  if(error){
+    throw error
+  }
+  setMetrics(data)
+  console.log(data)
   
-  console.log(response)
+
 } catch(error){
-  console.error("Something went wrong")
+  console.error('Something went wrong',error)
 }
 
 }
