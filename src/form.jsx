@@ -1,4 +1,5 @@
 import { useActionState } from "react";
+import supabase from "./supabase-client";
 const Form =({ metrics }) =>{
 
     const [error,submitAction,isPending] = useActionState(
@@ -8,6 +9,14 @@ const Form =({ metrics }) =>{
         value: formData.get('value'),
       };
       console.log(newDeal)
+
+      const {error} = await supabase.from('sales_deals').insert(newDeal)
+
+
+        if (error) {
+        console.error('Error adding deal: ', error.message);
+        return new Error('Failed to add deal');
+      }
 
 
       return null
@@ -42,8 +51,7 @@ const Form =({ metrics }) =>{
             name="name"
             defaultValue={metrics?.[0]?.name || ''}
             aria-required="true"
-            // aria-invalid=
-            // disabled=
+      
           >
             {generateOptions()}
           </select>
@@ -59,17 +67,13 @@ const Form =({ metrics }) =>{
             className="amount-input"
             min="0"
             step="10"
-            aria-required="true"
-            // aria-invalid=
-            aria-label="Deal amount in dollars"
-            // disabled=
+         
           />
         </label>
 
         <button 
           type="submit" 
-          // disabled=
-          // aria-busy=
+         
         >
                    {isPending ? 'Adding...' : "Add Deal"}
 
