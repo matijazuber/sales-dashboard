@@ -1,8 +1,9 @@
 import supabase from "./supabase-client"
 import { useEffect, useState } from "react"
 import { Chart } from "react-charts"
+import Form from "./form"
 
-function Dashboard() {
+const Dashboard = ()=> {
   const [metrics, setMetrics] = useState([])
 
   const fetchMetrics = async () => {
@@ -17,15 +18,33 @@ function Dashboard() {
       if (error) throw error
 
       setMetrics(data)
-      console.log(data)
 
     } catch (error) {
-      console.error("Something went wrong", error)
+      console.error("Error fetching the data: ", error)
     }
   }
 
   useEffect(() => {
     fetchMetrics()
+  const channel = supabase
+      .channel('deal-changes')
+      .on(
+        'postgres_changes',
+        { 
+          event: '*', 
+          schema: 'public', 
+          table: 'sales_deals' 
+        },
+        (payload) => {
+              fetchMetrics()
+
+        })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+
   }, [])
 
   const primaryAxis = {
@@ -47,7 +66,7 @@ function Dashboard() {
   function y_max() {
     if (metrics.length > 0) {
       const maxSum = Math.max(...metrics.map((m) => m.sum))
-      return maxSum + 2000
+      return maxSum + 1000
     }
     return 5000
   }
@@ -85,6 +104,7 @@ function Dashboard() {
           }}
         />
       </div>
+          <Form metrics={metrics}></Form>
     </div>
   )
 }
