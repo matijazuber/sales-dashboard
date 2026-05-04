@@ -1,74 +1,70 @@
-import supabase from "./supabase-client"
-import { useEffect, useState } from "react"
-import { Chart } from "react-charts"
-import Form from "./form"
+import supabase from "../supabase-client";
+import { useEffect, useState } from "react";
+import { Chart } from "react-charts";
+import Form from "../components/form";
 
-const Dashboard = ()=> {
-  const [metrics, setMetrics] = useState([])
+const Dashboard = () => {
+  const [metrics, setMetrics] = useState([]);
 
   const fetchMetrics = async () => {
     try {
-      const { data, error } = await supabase
-        .from("sales_deals")
-        .select(`
+      const { data, error } = await supabase.from("sales_deals").select(`
           name,
           value.sum()
-        `)
+        `);
 
-      if (error) throw error
+      if (error) throw error;
 
-      setMetrics(data)
-
+      setMetrics(data);
     } catch (error) {
-      console.error("Error fetching the data: ", error)
+      console.error("Error fetching the data: ", error);
     }
-  }
+  };
 
   useEffect(() => {
-    fetchMetrics()
-  const channel = supabase
-      .channel('deal-changes')
+    fetchMetrics();
+    const channel = supabase
+      .channel("deal-changes")
       .on(
-        'postgres_changes',
-        { 
-          event: '*', 
-          schema: 'public', 
-          table: 'sales_deals' 
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "sales_deals",
         },
         (payload) => {
-              fetchMetrics()
-
-        })
+          fetchMetrics();
+        },
+      )
       .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
     };
-
-  }, [])
+  }, []);
 
   const primaryAxis = {
     getValue: (d) => d.primary,
     scaleType: "band",
     padding: 0.2,
     position: "bottom",
-  }
+  };
 
   const chartData = [
     {
       data: metrics.map((m) => ({
         primary: m.name,
-        secondary: m.sum, 
+        secondary: m.sum,
       })),
     },
-  ]
+  ];
 
   function y_max() {
     if (metrics.length > 0) {
-      const maxSum = Math.max(...metrics.map((m) => m.sum))
-      return maxSum + 1000
+      const maxSum = Math.max(...metrics.map((m) => m.sum));
+      return maxSum + 1000;
     }
-    return 5000
+    return 5000;
   }
 
   const secondaryAxes = [
@@ -82,7 +78,7 @@ const Dashboard = ()=> {
         bottom: 40,
       },
     },
-  ]
+  ];
 
   return (
     <div className="dashboard-wrapper">
@@ -90,7 +86,7 @@ const Dashboard = ()=> {
         <h2>Total Sales This Quarter ($)</h2>
       </div>
 
-      <div style={{ height:'10000px' }}>
+      <div style={{ height: "10000px" }}>
         <Chart
           options={{
             data: chartData,
@@ -104,9 +100,9 @@ const Dashboard = ()=> {
           }}
         />
       </div>
-          <Form metrics={metrics}></Form>
+      <Form metrics={metrics}></Form>
     </div>
-  )
-}
+  );
+};
 
-export default Dashboard
+export default Dashboard;
