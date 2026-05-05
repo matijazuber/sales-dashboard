@@ -1,7 +1,9 @@
 import { useActionState } from "react";
 import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 const Signin = () => {
   const { signinUser } = useAuth();
+  const navigate = useNavigate();
   const [error, submitAction, isPending] = useActionState(
     async (prevState, formData) => {
       const emailPasswordVars = {
@@ -20,6 +22,7 @@ const Signin = () => {
       }
 
       if (success && data?.session) {
+        navigate("/dashboard");
         return null;
       }
       return null;
