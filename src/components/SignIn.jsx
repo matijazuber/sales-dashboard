@@ -1,13 +1,27 @@
 import { useActionState } from "react";
+import { useAuth } from "../context/AuthContext";
 const Signin = () => {
+  const { signinUser } = useAuth();
   const [error, submitAction, isPending] = useActionState(
     async (prevState, formData) => {
       const emailPasswordVars = {
         email: formData.get("email"),
         password: formData.get("password"),
       };
-      console.log(emailPasswordVars);
 
+      const {
+        success,
+        data,
+        error: signInError,
+      } = await signinUser(emailPasswordVars.email, emailPasswordVars.password);
+
+      if (signInError) {
+        return new Error(signInError);
+      }
+
+      if (success && data?.session) {
+        return null;
+      }
       return null;
     },
     null,
@@ -38,8 +52,13 @@ const Signin = () => {
           ></input>
           <br></br>
           <button style={{ marginTop: "20px" }} type="submit">
-            Sign In
+            {isPending ? "Signing in" : "Sign In"}
           </button>
+          {error && (
+            <div style={{ color: "red" }} id="signin-error" role="alert">
+              {error.message}
+            </div>
+          )}
         </form>
       </div>
     </>

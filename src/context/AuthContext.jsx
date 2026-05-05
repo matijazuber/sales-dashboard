@@ -30,8 +30,32 @@ export const AuthContextProvider = ({ children }) => {
     });
   }, []);
 
+  const signinUser = async (email, password) => {
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email.toLowerCase(),
+        password: password,
+      });
+      if (error) {
+        console.error("Supabase signin error");
+        return { success: false, error: error.message };
+      }
+      console.log("Supabase signin success", data);
+      return { success: true, data };
+    } catch (error) {
+      console.error("Unexpected error during sign-in:", error.message);
+
+      return {
+        success: false,
+        error: "An unexpected error occurred. Please try again.",
+      };
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ session }}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={{ session, signinUser }}>
+      {children}
+    </AuthContext.Provider>
   );
 };
 
