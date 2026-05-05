@@ -52,8 +52,27 @@ export const AuthContextProvider = ({ children }) => {
     }
   };
 
+  const signOutUser = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error("Supabase signin error");
+        return { success: false, error: error.message };
+      }
+      console.log("Supabase signOut success");
+      return { success: true };
+    } catch (error) {
+      console.error("Unexpected error during sign-in:", error.message);
+
+      return {
+        success: false,
+        error: "An unexpected error occurred. Please try again.",
+      };
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ session, signinUser }}>
+    <AuthContext.Provider value={{ session, signinUser, signOutUser }}>
       {children}
     </AuthContext.Provider>
   );
