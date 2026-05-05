@@ -1,6 +1,6 @@
 import { useActionState } from "react";
 import { useAuth } from "../context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 const Signin = () => {
   const { signinUser } = useAuth();
   const navigate = useNavigate();
@@ -35,7 +35,9 @@ const Signin = () => {
       <div>
         <form action={submitAction}>
           <h2>Sign in</h2>
-          <p>Dont'have an account yet? Sign Up</p>
+          <p>
+            Dont'have an account yet?<Link to="/signup"> Sign Up</Link>
+          </p>
           <label htmlFor="email">Email</label>
           <input
             style={{ backgroundColor: "white", color: "black" }}
