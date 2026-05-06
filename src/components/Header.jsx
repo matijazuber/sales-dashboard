@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 function Header() {
-  const { signOutUser } = useAuth();
+  const { signOutUser, session } = useAuth();
   const [error, setError] = useState("Failed to sign out");
   const navigate = useNavigate();
 
@@ -21,8 +21,8 @@ function Header() {
     <>
       <header>
         <h1>
+          <span>{session?.user?.email}</span>
           <button onClick={handleSignOut}>Sign out</button>
-          {error}
           <svg
             width="28"
             height="28"
